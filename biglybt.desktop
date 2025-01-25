@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=BiglyBT
+GenericName=BitTorrent Client
+Exec=biglybt %U
+Icon=/usr/share/pixmaps/biglybt.png
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/magnet;application/x-bittorrent;application/x-biglybt;x-scheme-handler/biglybt;
+Categories=Application;Network;FileTransfer;P2P;GTK;Java;
+Keywords=file transfer;P2P
+StartupWMClass=BiglyBT

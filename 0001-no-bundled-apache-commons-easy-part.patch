@@ -1,0 +1,145 @@
+From 1638757635b5fb26d9f1100e97c289b059d07ffd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
+Date: Sun, 14 Jan 2024 17:26:07 +0000
+Subject: [PATCH 1/4] no-bundled-apache-commons easy part
+
+---
+ .../com/biglybt/core/metasearch/Result.java   |  4 ++--
+ .../core/metasearch/impl/web/WebResult.java   | 24 +++++++++----------
+ 2 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/core/src/com/biglybt/core/metasearch/Result.java b/core/src/com/biglybt/core/metasearch/Result.java
+index 0e38af0fd..83c9e2c1f 100644
+--- a/core/src/com/biglybt/core/metasearch/Result.java
++++ b/core/src/com/biglybt/core/metasearch/Result.java
+@@ -23,7 +23,7 @@ import java.net.InetAddress;
+ import java.net.URL;
+ import java.util.*;
+ 
+-import org.apache.commons.lang.Entities;
++import org.apache.commons.lang3.StringEscapeUtils;
+ import org.json.simple.JSONObject;
+ 
+ import com.biglybt.core.metasearch.utils.MomentsAgoDateFormatter;
+@@ -502,6 +502,6 @@ Result
+ 		if ( input == null ){
+ 			return( null );
+ 		}
+-		return( Entities.HTML40.unescape( input ));
++		return( StringEscapeUtils.unescapeHtml4( input ));
+ 	}
+ }
+diff --git a/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java b/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java
+index e9fbf29d5..102fb9a6a 100644
+--- a/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java
++++ b/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java
+@@ -21,7 +21,7 @@ package com.biglybt.core.metasearch.impl.web;
+ 
+ import java.util.*;
+ 
+-import org.apache.commons.lang.Entities;
++import org.apache.commons.lang3.StringEscapeUtils;
+ 
+ import com.biglybt.core.metasearch.Engine;
+ import com.biglybt.core.metasearch.Result;
+@@ -90,14 +90,14 @@ public class WebResult extends Result {
+ 	public void setNameFromHTML(String name) {
+ 		if(name != null) {
+ 			name = removeHTMLTags(name);
+-			this.name = Entities.HTML40.unescape(name);
++			this.name = StringEscapeUtils.unescapeHtml4(name);
+ 		}
+ 	}
+ 
+ 	public void setCommentsFromHTML(String comments) {
+ 		if(comments != null) {
+ 			comments = removeHTMLTags(comments);
+-			comments = Entities.HTML40.unescape(comments);
++			comments = StringEscapeUtils.unescapeHtml4(comments);
+ 			comments = comments.replaceAll(",", "");
+ 			comments = comments.replaceAll(" ", "");
+ 			try{
+@@ -112,7 +112,7 @@ public class WebResult extends Result {
+ 		if(category != null) {
+ 			addTagFromHTML(category);	// hack, we currently just pick up cats
+ 			category = removeHTMLTags(category);
+-			this.category = Entities.HTML40.unescape(category).trim();
++			this.category = StringEscapeUtils.unescapeHtml4(category).trim();
+ 			/*int separator = this.category.indexOf(">");
+ 
+ 			if(separator != -1) {
+@@ -134,7 +134,7 @@ public class WebResult extends Result {
+ 		}
+ 		
+ 		tag = removeHTMLTags( tag );
+-		tag = Entities.HTML40.unescape( tag ).trim();
++		tag = StringEscapeUtils.unescapeHtml4( tag ).trim();
+ 		
+ 		if ( !tag.isEmpty()){
+ 			
+@@ -163,7 +163,7 @@ public class WebResult extends Result {
+ 	public void setNbPeersFromHTML(String nbPeers) {
+ 		if(nbPeers != null) {
+ 			nbPeers = removeHTMLTags(nbPeers);
+-			String nbPeersS = Entities.HTML40.unescape(nbPeers);
++			String nbPeersS = StringEscapeUtils.unescapeHtml4(nbPeers);
+ 			nbPeersS = nbPeersS.replaceAll(",", "");
+ 			nbPeersS = nbPeersS.replaceAll(" ", "");
+ 			try {
+@@ -178,7 +178,7 @@ public class WebResult extends Result {
+ 	public void setNbSeedsFromHTML(String nbSeeds) {
+ 		if(nbSeeds != null) {
+ 			nbSeeds = removeHTMLTags(nbSeeds);
+-			String nbSeedsS = Entities.HTML40.unescape(nbSeeds);
++			String nbSeedsS = StringEscapeUtils.unescapeHtml4(nbSeeds);
+ 			nbSeedsS = nbSeedsS.replaceAll(",", "");
+ 			nbSeedsS = nbSeedsS.replaceAll(" ", "");
+ 			try {
+@@ -193,7 +193,7 @@ public class WebResult extends Result {
+ 	public void setNbSuperSeedsFromHTML(String nbSuperSeeds) {
+ 		if(nbSuperSeeds != null) {
+ 			nbSuperSeeds = removeHTMLTags(nbSuperSeeds);
+-			String nbSuperSeedsS = Entities.HTML40.unescape(nbSuperSeeds);
++			String nbSuperSeedsS = StringEscapeUtils.unescapeHtml4(nbSuperSeeds);
+ 			nbSuperSeedsS = nbSuperSeedsS.replaceAll(",", "");
+ 			nbSuperSeedsS = nbSuperSeedsS.replaceAll(" ", "");
+ 			try {
+@@ -276,7 +276,7 @@ public class WebResult extends Result {
+ 	public void setPublishedDateFromHTML(String publishedDate) {
+ 		if(publishedDate != null && publishedDate.length() > 0) {
+ 			publishedDate = removeHTMLTags(publishedDate);
+-			String publishedDateS = Entities.HTML40.unescape(publishedDate).replace((char)160,(char)32);
++			String publishedDateS = StringEscapeUtils.unescapeHtml4(publishedDate).replace((char)160,(char)32);
+ 			this.publishedDate = dateParser.parseDate(publishedDateS);
+ 		}
+ 	}
+@@ -292,7 +292,7 @@ public class WebResult extends Result {
+ 	public void setSizeFromHTML(String size) {
+ 		if(size != null) {
+ 			size = removeHTMLTags(size);
+-			String sizeS = Entities.HTML40.unescape(size).replace((char)160,(char)32);
++			String sizeS = StringEscapeUtils.unescapeHtml4(size).replace((char)160,(char)32);
+ 			sizeS = sizeS.replaceAll("<[^>]+>", " ");
+ 			//Add a space between the digits and unit if there is none
+ 			sizeS = sizeS.replaceFirst("(\\d)([a-zA-Z])", "$1 $2");
+@@ -322,7 +322,7 @@ public class WebResult extends Result {
+ 	public void setVotesFromHTML(String votes_str) {
+ 		if(votes_str != null) {
+ 			votes_str = removeHTMLTags(votes_str);
+-			votes_str = Entities.HTML40.unescape(votes_str);
++			votes_str = StringEscapeUtils.unescapeHtml4(votes_str);
+ 			votes_str = votes_str.replaceAll(",", "");
+ 			votes_str = votes_str.replaceAll(" ", "");
+ 			try {
+@@ -336,7 +336,7 @@ public class WebResult extends Result {
+ 	public void setVotesDownFromHTML(String votes_str) {
+ 		if(votes_str != null) {
+ 			votes_str = removeHTMLTags(votes_str);
+-			votes_str = Entities.HTML40.unescape(votes_str);
++			votes_str = StringEscapeUtils.unescapeHtml4(votes_str);
+ 			votes_str = votes_str.replaceAll(",", "");
+ 			votes_str = votes_str.replaceAll(" ", "");
+ 			try {
+-- 
+2.43.0
+

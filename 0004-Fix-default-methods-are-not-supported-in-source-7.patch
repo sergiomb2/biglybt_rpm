@@ -1,0 +1,29 @@
+From 99ab20ed0e76b099fc87a60609044f7c07b89079 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
+Date: Sun, 14 Jan 2024 17:39:14 +0000
+Subject: [PATCH 4/4] Fix default methods are not supported in -source 7
+
+(use -source 8 or higher to enable default methods)
+when we use maven-compiler-plugin which haven't any configuration.
+---
+ pom.xml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/pom.xml b/pom.xml
+index ecab95b47..eef95089c 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -138,6 +138,10 @@
+ 					<groupId>org.apache.maven.plugins</groupId>
+ 					<artifactId>maven-compiler-plugin</artifactId>
+ 					<version>3.6.2</version>
++					<configuration>
++						<source>${java.version}</source>
++						<target>${java.version}</target>
++					</configuration>
+ 				</plugin>
+ 				<plugin>
+ 					<groupId>org.apache.maven.plugins</groupId>
+-- 
+2.43.0
+

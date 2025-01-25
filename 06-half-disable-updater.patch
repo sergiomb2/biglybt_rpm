@@ -1,0 +1,48 @@
+Description: Disables the auto update since we use the packaged code
+Author: Emmanuel Bourg <ebourg@apache.org>
+Forwarded: not-needed
+--- a/core/src/com/biglybt/core/config/impl/ConfigurationDefaults.java
++++ b/core/src/com/biglybt/core/config/impl/ConfigurationDefaults.java
+@@ -317,9 +317,9 @@
+ 	def.put("Default save path", f.getAbsolutePath());
+ 	def.put("saveTo_list.max_entries", new Long(15));
+ 
+-    def.put("update.start",TRUE);
+-    def.put("update.periodic",TRUE);
+-    def.put("update.opendialog",TRUE);
++    def.put("update.start",FALSE);
++    def.put("update.periodic",FALSE);
++    def.put("update.opendialog",FALSE);
+     def.put("update.autodownload", FALSE);
+     def.put("update.anonymous", FALSE);
+ 
+@@ -602,7 +602,7 @@
+     def.put( "locale", Locale.getDefault().toString() );
+     def.put( "locale.set.complete.count", ZERO);
+     def.put( "Password Confirm", null );
+-    def.put( "Auto Update", TRUE );
++    def.put( "Auto Update", FALSE );
+     def.put( "Alert on close", FALSE );
+     def.put( "diskmanager.hashchecking.strategy", ONE );
+     def.put( ConfigKeys.File.BCFG_DISKMANAGER_HASHCHECKING_SMALLESTFIRST, TRUE );
+--- a/uis/src/com/biglybt/ui/swt/Initializer.java
++++ b/uis/src/com/biglybt/ui/swt/Initializer.java
+@@ -701,7 +701,6 @@
+ 
+ 			reportCurrentTaskByKey("splash.openViews");
+ 
+-			SWTUpdateChecker.initialize();
+ 
+ 			UpdateMonitor.getSingleton(core); // setup the update monitor
+ 
+--- a/core/src/com/biglybt/update/CoreUpdateChecker.java
++++ b/core/src/com/biglybt/update/CoreUpdateChecker.java
+@@ -86,7 +86,7 @@
+ 	public static void
+ 	doUsageStats()
+ 	{
+-		singleton.doUsageStatsSupport();
++		if (singleton != null) singleton.doUsageStatsSupport();
+ 	}
+ 
+ 	public

@@ -3,10 +3,10 @@ Author: Emmanuel Bourg <ebourg@apache.org>
 Forwarded: not-needed
 --- a/core/src/com/biglybt/core/config/impl/ConfigurationDefaults.java
 +++ b/core/src/com/biglybt/core/config/impl/ConfigurationDefaults.java
-@@ -317,9 +317,9 @@
- 	def.put("Default save path", f.getAbsolutePath());
+@@ -332,9 +332,9 @@ public class ConfigurationDefaults {
  	def.put("saveTo_list.max_entries", new Long(15));
- 
+ 	def.put(ConfigKeys.File.BCFG_ALWAYS_CREATE_TORRENT_SUB_FOLDER, FALSE );
+ 	
 -    def.put("update.start",TRUE);
 -    def.put("update.periodic",TRUE);
 -    def.put("update.opendialog",TRUE);

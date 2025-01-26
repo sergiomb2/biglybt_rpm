@@ -113,8 +113,8 @@ index e9fbf29d5..102fb9a6a 100644
  			this.publishedDate = dateParser.parseDate(publishedDateS);
  		}
  	}
-@@ -292,7 +292,7 @@ public class WebResult extends Result {
- 	public void setSizeFromHTML(String size) {
+@@ -298,7 +298,7 @@ public class WebResult extends Result {
+ 	public void setSizeFromHTML(String size, long minAcceptable) {
  		if(size != null) {
  			size = removeHTMLTags(size);
 -			String sizeS = Entities.HTML40.unescape(size).replace((char)160,(char)32);
@@ -142,4 +142,3 @@ index e9fbf29d5..102fb9a6a 100644
  			try {
 -- 
 2.43.0
-

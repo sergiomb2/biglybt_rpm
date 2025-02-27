@@ -1,11 +1,11 @@
 %global java_ver 21
 
 Name:           biglybt
-Version:        3.7.0.0
+Version:        3.8.0.0
 Release:        1%{?dist}
 Summary:        A feature filled, open source, ad-free, BitTorrent client
 
-License:        BSD
+License:        GPL-2.0-or-later
 URL:            https://github.com/BiglySoftware/BiglyBT
 Source0:        %{url}/archive/v%{version}/BiglyBT-%{version}.tar.gz
 Source2:        biglybt.desktop
@@ -19,11 +19,10 @@ Patch9:         0001-no-bundled-apache-commons-easy-part.patch
 Patch10:        0002-no-bundled-apache-commons-hard-part.patch
 Patch11:        0003-Fix-doc-generation.patch
 Patch12:        0004-Fix-default-methods-are-not-supported-in-source-7.patch
-Patch13:        fix_build.patch
+Patch13:        java21.patch
 
 BuildArch:      noarch
-# eclipse-swt upstream stopped supporting non-64bit arches at version 4.11
-ExcludeArch: s390 %{arm} %{ix86}
+ExclusiveArch:  %{java_arches}
 
 #BuildRequires:  maven-local-openjdk8
 BuildRequires:  maven-local
@@ -74,13 +73,15 @@ rm -rv uis/lib/
 rm -rv core/src/org/apache
 %pom_add_dep org.apache.commons:commons-lang3 core/pom.xml
 
+# unblundle fails with java.lang.ClassNotFoundException: org.gudy.bouncycastle.crypto.BlockCipher
 # add dep bouncycastle getting values from /usr/share/maven-metadata/bouncycastle-bcprov.xml
 #rm -rv core/src/org/gudy/bouncycastle/
-#pom_add_dep org.bouncycastle:bcprov-jdk15on core/pom.xml
+#%%pom_add_dep org.bouncycastle:bcprov-jdk18on core/pom.xml
+
 
 # add dep json-simple getting values from /usr/share/maven-metadata/json_simple.xml
 #rm -rv core/src/org/json
-#pom_add_dep com.googlecode.json-simple:json-simple core/pom.xml
+#%%pom_add_dep com.googlecode.json-simple:json-simple core/pom.xml
 
 # set the correct version
 %pom_xpath_set pom:project/pom:properties/pom:java.version %{java_ver}
@@ -96,14 +97,9 @@ rm -rv core/src/org/apache
 %pom_add_dep org.eclipse.swt:org.eclipse.swt
 # exclude as other swt on uis/pom.xml
 %pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.eclipse.swt:org.eclipse.swt</exclude>" uis/pom.xml
-
-# add dep bouncycastle getting values from /usr/share/maven-metadata/bouncycastle-bcprov.xml
-#%%pom_add_dep org.bouncycastle:bcprov-jdk15on core/pom.xml
-
-# add dep json-simple getting values from /usr/share/maven-metadata/json_simple.xml
-#%%pom_add_dep com.googlecode.json-simple:json-simple core/pom.xml
-
-#%%pom_add_dep commons-lang:commons-lang core/pom.xml
+%pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.apache.commons:commons-lang3</exclude>" uis/pom.xml
+#%%pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.bouncycastle:bcprov-jdk18on</exclude>" uis/pom.xml
+#%%pom_xpath_remove -r pom:manifestEntries/pom:Class-Path uis/pom.xml
 
 %pom_remove_plugin -r io.takari.maven.plugins:takari-lifecycle-plugin
 %pom_remove_plugin -r com.coderplus.maven.plugins:copy-rename-maven-plugin
@@ -117,11 +113,24 @@ rm -rv core/src/org/apache
 #JAR files must not include class-path entry inside META-INF/MANIFEST.MF
 sed -i '/class-path/I d' core/src/META-INF/MANIFEST.MF
 
+
 %build
-%mvn_build -i -f
+# iw_IL and he_IL refer to the same locale, but with a historical difference:
+# iw was the language code used for Hebrew in older versions of Java (before Java 7).
+# he is the updated and standard ISO 639-1 code for Hebrew.
+mv core/src/com/biglybt/internat/MessagesBundle_iw_IL.properties core/src/com/biglybt/internat/MessagesBundle_he_IL.properties
+mv uis/src/com/biglybt/ui/none/internat/MessagesBundle_iw_IL.properties uis/src/com/biglybt/ui/none/internat/MessagesBundle_he_IL.properties
+# very old versions of Java (before Java 1.4) used in_ID for the Indonesian language, following an older ISO standard.
+# If you create a Locale with "in", "ID", Java will automatically convert it to "id_ID".
+mv core/src/com/biglybt/internat/MessagesBundle_in_ID.properties core/src/com/biglybt/internat/MessagesBundle_id_ID.properties
+mv uis/src/com/biglybt/ui/none/internat/MessagesBundle_in_ID.properties uis/src/com/biglybt/ui/none/internat/MessagesBundle_id_ID.properties
+rm core/src.test/com/biglybt/core/WikiTest.java
+%mvn_build -i
+#mvn_build -i -f
 #mvn_build -i -f -j
-#rm core/src.test/com/biglybt/core/WikiTest.java
-#mvn_build -i
+
+# Move Licenses files from docs, we will install them on licenses directory
+mv target/xmvn-apidocs/legal/ .
 
 %install
 %mvn_install
@@ -132,7 +141,8 @@ sed -i 's|AUTOUPDATE_SCRIPT=1|AUTOUPDATE_SCRIPT=0|' %{buildroot}%{_bindir}/bigly
 sed -i 's|JAVA_PROGRAM_DIR=""|JAVA_PROGRAM_DIR="/usr/lib/jvm/jre-%{java_ver}/bin/"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#PROGRAM_DIR="/home/username/apps/biglybt"|PROGRAM_DIR="/usr/share/java/biglybt"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#USER_PLUGINS_DIR|USER_PLUGINS_DIR|' %{buildroot}%{_bindir}/biglybt
-#after unbundle all =${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt json_simple bcprov apache-commons-cli apache-commons-lang)|'
+sed -i 's|JAVA_PROPS=""|JAVA_PROPS="--add-opens=java.base/java.net=ALL-UNNAMED"|' %{buildroot}%{_bindir}/biglybt
+#after unbundle all =${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt json_simple bcprov apache-commons-cli apache-commons-lang3)|'
 sed -i 's|moveInSWT$|CLASSPATH=${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt apache-commons-cli)|' %{buildroot}%{_bindir}/biglybt
 
 mkdir -p %{buildroot}%{_javadir}/%{name}
@@ -154,7 +164,7 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 
 %files
 %doc CONTRIBUTING.md README.md TRANSLATE.md
-%license LICENSE
+%license LICENSE core/src/org/json/simple/LICENSE.txt
 %{_bindir}/biglybt
 %{_javadir}/%{name}
 %{_datadir}/applications/biglybt.desktop
@@ -163,10 +173,16 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/biglybt.1*
 
 %files javadoc -f .mfiles-javadoc
-%license LICENSE
+%license legal/LICENSE legal/ADDITIONAL_LICENSE_INFO
 
 
 %changelog
+* Thu Feb 27 2025 Sérgio Basto <sergio@serjux.com> - 3.8.0.0-1
+- Update to 3.8.0.0
+
+* Wed Feb 26 2025 Sérgio Basto <sergio@serjux.com> - 3.7.0.0-2
+- Unbundle bouncycastle
+
 * Sat Jan 25 2025 Sérgio Basto <sergio@serjux.com> - 3.7.0.0-1
 - Update to 3.7.0.0
 

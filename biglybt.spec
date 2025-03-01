@@ -2,7 +2,7 @@
 
 Name:           biglybt
 Version:        3.8.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A feature filled, open source, ad-free, BitTorrent client
 
 License:        GPL-2.0-or-later
@@ -15,10 +15,8 @@ Patch1:         0001-With-USER_PLUGINS_DIR-we-may-install-plugins-in-our-.patch
 Patch4:         06-half-disable-updater.patch
 #Patch7:         07-unbundle-bouncycastle.patch
 #Patch8:         biglybt-no-bundle-json.patch
-Patch9:         0001-no-bundled-apache-commons-easy-part.patch
-Patch10:        0002-no-bundled-apache-commons-hard-part.patch
+Patch9:         0001-no-bundled-apache-commons-lang.patch
 Patch11:        0003-Fix-doc-generation.patch
-Patch12:        0004-Fix-default-methods-are-not-supported-in-source-7.patch
 Patch13:        java21.patch
 
 BuildArch:      noarch
@@ -33,7 +31,7 @@ Provides: bundled(bouncycastle) = 1.58
 Provides: bundled(json_simple) = 1.1
 #BuildRequires:  bouncycastle
 BuildRequires:  mvn(org.apache.commons:commons-cli)
-BuildRequires:  mvn(org.apache.commons:commons-lang3)
+BuildRequires:  mvn(org.apache.commons:commons-text)
 #BuildRequires:  json_simple
 BuildRequires:  mvn(org.eclipse.swt:org.eclipse.swt)
 BuildRequires:  mvn(org.apache.maven.plugins:maven-surefire-plugin)
@@ -43,6 +41,7 @@ BuildRequires:  mvn(org.apache.maven.plugins:maven-shade-plugin)
 Requires:   mvn(org.eclipse.swt:org.eclipse.swt)
 #Requires:   bouncycastle
 Requires:   mvn(org.apache.commons:commons-cli)
+Requires:   mvn(org.apache.commons:commons-text)
 Requires:   mvn(org.apache.commons:commons-lang3)
 #Requires:   json_simple
 
@@ -71,7 +70,7 @@ rm -rv uis/lib/
 
 #unbundle apache-common
 rm -rv core/src/org/apache
-%pom_add_dep org.apache.commons:commons-lang3 core/pom.xml
+%pom_add_dep org.apache.commons:commons-text core/pom.xml
 
 # unblundle fails with java.lang.ClassNotFoundException: org.gudy.bouncycastle.crypto.BlockCipher
 # add dep bouncycastle getting values from /usr/share/maven-metadata/bouncycastle-bcprov.xml
@@ -98,15 +97,16 @@ rm -rv core/src/org/apache
 # exclude as other swt on uis/pom.xml
 %pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.eclipse.swt:org.eclipse.swt</exclude>" uis/pom.xml
 %pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.apache.commons:commons-lang3</exclude>" uis/pom.xml
+%pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.apache.commons:commons-text</exclude>" uis/pom.xml
 #%%pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.bouncycastle:bcprov-jdk18on</exclude>" uis/pom.xml
-#%%pom_xpath_remove -r pom:manifestEntries/pom:Class-Path uis/pom.xml
+%pom_xpath_remove -r pom:manifestEntries/pom:Class-Path
 
 %pom_remove_plugin -r io.takari.maven.plugins:takari-lifecycle-plugin
 %pom_remove_plugin -r com.coderplus.maven.plugins:copy-rename-maven-plugin
+%pom_xpath_remove pom:repository
 %pom_xpath_set pom:packaging pom
 %pom_xpath_set pom:packaging jar core/pom.xml
 %pom_xpath_set pom:packaging jar uis/pom.xml
-%pom_xpath_remove pom:repository
 #[WARNING] The project com.biglybt:biglybt-parent:pom:3.0.0.0 uses prerequisites which is only intended for maven-plugin projects but not for non maven-pluginprojects. For such purposes you should use the maven-enforcer-plugin. See https://maven.apache.org/enforcer/enforcer-rules/requireMavenVersion.html
 #%%pom_xpath_remove pom:prerequisites
 
@@ -138,12 +138,12 @@ mv target/xmvn-apidocs/legal/ .
 install -p -D -m 0755 core/src/com/biglybt/platform/unix/startupScript %{buildroot}%{_bindir}/biglybt
 ######## CONFIGURATION OPTIONS ########
 sed -i 's|AUTOUPDATE_SCRIPT=1|AUTOUPDATE_SCRIPT=0|' %{buildroot}%{_bindir}/biglybt
-sed -i 's|JAVA_PROGRAM_DIR=""|JAVA_PROGRAM_DIR="/usr/lib/jvm/jre-%{java_ver}/bin/"|' %{buildroot}%{_bindir}/biglybt
+#sed -i 's|JAVA_PROGRAM_DIR=""|JAVA_PROGRAM_DIR="/usr/lib/jvm/jre-%{java_ver}/bin/"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#PROGRAM_DIR="/home/username/apps/biglybt"|PROGRAM_DIR="/usr/share/java/biglybt"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#USER_PLUGINS_DIR|USER_PLUGINS_DIR|' %{buildroot}%{_bindir}/biglybt
-sed -i 's|JAVA_PROPS=""|JAVA_PROPS="--add-opens=java.base/java.net=ALL-UNNAMED"|' %{buildroot}%{_bindir}/biglybt
-#after unbundle all =${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt json_simple bcprov apache-commons-cli apache-commons-lang3)|'
-sed -i 's|moveInSWT$|CLASSPATH=${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt apache-commons-cli)|' %{buildroot}%{_bindir}/biglybt
+#sed -i 's|JAVA_PROPS=""|JAVA_PROPS="--add-opens=java.base/java.net=ALL-UNNAMED"|' %{buildroot}%{_bindir}/biglybt
+#after unbundle all =${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt json_simple bcprov apache-commons-cli apache-commons-lang3 apache-commons-text)|'
+sed -i 's|moveInSWT$|CLASSPATH=${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt apache-commons-cli apache-commons-lang3 apache-commons-text)|' %{buildroot}%{_bindir}/biglybt
 
 mkdir -p %{buildroot}%{_javadir}/%{name}
 install -pm 644 uis/target/BiglyBT.jar %{buildroot}%{_javadir}/%{name}/BiglyBT.jar
@@ -177,6 +177,9 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Sat Mar 01 2025 Sérgio Basto <sergio@serjux.com> - 3.8.0.0-2
+- Use apache.commons.text
+
 * Thu Feb 27 2025 Sérgio Basto <sergio@serjux.com> - 3.8.0.0-1
 - Update to 3.8.0.0
 

@@ -17,7 +17,7 @@ index 0e38af0fd..83c9e2c1f 100644
  import java.util.*;
  
 -import org.apache.commons.lang.Entities;
-+import org.apache.commons.lang3.StringEscapeUtils;
++import org.apache.commons.text.StringEscapeUtils;
  import org.json.simple.JSONObject;
  
  import com.biglybt.core.metasearch.utils.MomentsAgoDateFormatter;
@@ -38,7 +38,7 @@ index e9fbf29d5..102fb9a6a 100644
  import java.util.*;
  
 -import org.apache.commons.lang.Entities;
-+import org.apache.commons.lang3.StringEscapeUtils;
++import org.apache.commons.text.StringEscapeUtils;
  
  import com.biglybt.core.metasearch.Engine;
  import com.biglybt.core.metasearch.Result;
@@ -142,3 +142,29 @@ index e9fbf29d5..102fb9a6a 100644
  			try {
 -- 
 2.43.0
+--- a/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java.orig	2025-03-01 21:00:26.334149525 +0000
++++ b/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java	2025-03-01 21:09:14.961317365 +0000
+@@ -31,7 +31,7 @@ import java.util.Vector;
+ import javax.xml.parsers.DocumentBuilder;
+ import javax.xml.parsers.DocumentBuilderFactory;
+ 
+-import org.apache.commons.lang.Entities;
++import org.apache.commons.text.StringEscapeUtils;
+ import org.w3c.dom.Document;
+ import org.w3c.dom.Node;
+ import org.xml.sax.*;
+@@ -748,11 +748,11 @@ SimpleXMLParserDocumentImpl
+ 
+ 		     				}else{
+ 
+-			     				int num = Entities.HTML40.entityValue( ref );
++			     				String decoded = StringEscapeUtils.unescapeHtml4("&" + ref + ";");
+ 
+-		     					if ( num != -1 ){
++		     					if ( decoded != null && !decoded.equals("&" + ref + ";") ){
+ 
+-		     						replacement = "&#" + num + ";";
++		     						replacement = decoded;
+ 
+ 		     					}else{
+ 

@@ -1,8 +1,8 @@
 %global java_ver 21
 
 Name:           biglybt
-Version:        3.8.0.0
-Release:        2%{?dist}
+Version:        3.8.0.2
+Release:        1%{?dist}
 Summary:        A feature filled, open source, ad-free, BitTorrent client
 
 License:        GPL-2.0-or-later
@@ -18,6 +18,7 @@ Patch4:         06-half-disable-updater.patch
 Patch9:         0001-no-bundled-apache-commons-lang.patch
 Patch11:        0003-Fix-doc-generation.patch
 Patch13:        java21.patch
+Patch14:        startupScript.patch
 
 BuildArch:      noarch
 ExclusiveArch:  %{java_arches}
@@ -138,7 +139,7 @@ mv target/xmvn-apidocs/legal/ .
 install -p -D -m 0755 core/src/com/biglybt/platform/unix/startupScript %{buildroot}%{_bindir}/biglybt
 ######## CONFIGURATION OPTIONS ########
 sed -i 's|AUTOUPDATE_SCRIPT=1|AUTOUPDATE_SCRIPT=0|' %{buildroot}%{_bindir}/biglybt
-#sed -i 's|JAVA_PROGRAM_DIR=""|JAVA_PROGRAM_DIR="/usr/lib/jvm/jre-%{java_ver}/bin/"|' %{buildroot}%{_bindir}/biglybt
+sed -i 's|JAVA_PROGRAM_DIR=""|JAVA_PROGRAM_DIR="/usr/lib/jvm/jre-%{java_ver}/bin/"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#PROGRAM_DIR="/home/username/apps/biglybt"|PROGRAM_DIR="/usr/share/java/biglybt"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#USER_PLUGINS_DIR|USER_PLUGINS_DIR|' %{buildroot}%{_bindir}/biglybt
 #sed -i 's|JAVA_PROPS=""|JAVA_PROPS="--add-opens=java.base/java.net=ALL-UNNAMED"|' %{buildroot}%{_bindir}/biglybt
@@ -177,6 +178,9 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Sat Apr 12 2025 Sérgio Basto <sergio@serjux.com> - 3.8.0.2-1
+- Update to 3.8.0.2
+
 * Sat Mar 01 2025 Sérgio Basto <sergio@serjux.com> - 3.8.0.0-2
 - Use apache.commons.text
 

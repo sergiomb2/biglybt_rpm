@@ -1,0 +1,116 @@
+From ae38aa2af08f340f1c4e7f2272305ff02b9ee79a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
+Date: Sun, 30 Nov 2025 01:03:35 +0000
+Subject: [PATCH 1/2] Fix Java 25 compilation
+
+---
+ .../core/torrent/impl/TOTorrentCreateV2Impl.java |  3 +--
+ .../jce/X509V1CertificateGenerator.java          |  9 ++++++++-
+ .../bouncycastle/jce/X509V2CRLGenerator.java     |  8 +++++++-
+ .../jce/X509V3CertificateGenerator.java          |  9 ++++++++-
+ .../jce/provider/X509CertificateObject.java      | 16 ++++++++++++++--
+ 5 files changed, 38 insertions(+), 7 deletions(-)
+
+diff --git a/core/src/com/biglybt/core/torrent/impl/TOTorrentCreateV2Impl.java b/core/src/com/biglybt/core/torrent/impl/TOTorrentCreateV2Impl.java
+index 398456299..459a5a1aa 100644
+--- a/core/src/com/biglybt/core/torrent/impl/TOTorrentCreateV2Impl.java
++++ b/core/src/com/biglybt/core/torrent/impl/TOTorrentCreateV2Impl.java
+@@ -24,8 +24,7 @@ import java.util.*;
+ 
+ import com.biglybt.core.torrent.TOTorrentException;
+ import com.biglybt.core.util.*;
+-
+-import java.security.*;
++import java.security.MessageDigest;
+ 
+ 
+ public class 
+diff --git a/core/src/org/gudy/bouncycastle/jce/X509V1CertificateGenerator.java b/core/src/org/gudy/bouncycastle/jce/X509V1CertificateGenerator.java
+index 8fb45a694..eff26b809 100644
+--- a/core/src/org/gudy/bouncycastle/jce/X509V1CertificateGenerator.java
++++ b/core/src/org/gudy/bouncycastle/jce/X509V1CertificateGenerator.java
+@@ -3,7 +3,14 @@ package org.gudy.bouncycastle.jce;
+ import java.io.ByteArrayInputStream;
+ import java.io.ByteArrayOutputStream;
+ import java.math.BigInteger;
+-import java.security.*;
++import java.security.PrivateKey;
++import java.security.PublicKey;
++import java.security.SecureRandom;
++import java.security.InvalidKeyException;
++import java.security.NoSuchProviderException;
++import java.security.NoSuchAlgorithmException;
++import java.security.Signature;
++import java.security.SignatureException;
+ import java.security.cert.X509Certificate;
+ import java.util.Date;
+ import java.util.Hashtable;
+diff --git a/core/src/org/gudy/bouncycastle/jce/X509V2CRLGenerator.java b/core/src/org/gudy/bouncycastle/jce/X509V2CRLGenerator.java
+index d94f4be76..1fd2aef7f 100644
+--- a/core/src/org/gudy/bouncycastle/jce/X509V2CRLGenerator.java
++++ b/core/src/org/gudy/bouncycastle/jce/X509V2CRLGenerator.java
+@@ -3,7 +3,13 @@ package org.gudy.bouncycastle.jce;
+ import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
+ import java.math.BigInteger;
+-import java.security.*;
++import java.security.PrivateKey;
++import java.security.SecureRandom;
++import java.security.Signature;
++import java.security.SignatureException;
++import java.security.InvalidKeyException;
++import java.security.NoSuchAlgorithmException;
++import java.security.NoSuchProviderException;
+ import java.security.cert.X509CRL;
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+diff --git a/core/src/org/gudy/bouncycastle/jce/X509V3CertificateGenerator.java b/core/src/org/gudy/bouncycastle/jce/X509V3CertificateGenerator.java
+index 53e9377f1..c5df132be 100644
+--- a/core/src/org/gudy/bouncycastle/jce/X509V3CertificateGenerator.java
++++ b/core/src/org/gudy/bouncycastle/jce/X509V3CertificateGenerator.java
+@@ -4,7 +4,14 @@ import java.io.ByteArrayInputStream;
+ import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
+ import java.math.BigInteger;
+-import java.security.*;
++import java.security.PrivateKey;
++import java.security.PublicKey;
++import java.security.SecureRandom;
++import java.security.InvalidKeyException;
++import java.security.NoSuchProviderException;
++import java.security.NoSuchAlgorithmException;
++import java.security.Signature;
++import java.security.SignatureException;
+ import java.security.cert.X509Certificate;
+ import java.util.Date;
+ import java.util.Hashtable;
+diff --git a/core/src/org/gudy/bouncycastle/jce/provider/X509CertificateObject.java b/core/src/org/gudy/bouncycastle/jce/provider/X509CertificateObject.java
+index 42ab5578c..c40e4dfad 100644
+--- a/core/src/org/gudy/bouncycastle/jce/provider/X509CertificateObject.java
++++ b/core/src/org/gudy/bouncycastle/jce/provider/X509CertificateObject.java
+@@ -4,8 +4,20 @@ import java.io.ByteArrayInputStream;
+ import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
+ import java.math.BigInteger;
+-import java.security.*;
+-import java.security.cert.*;
++import java.security.PublicKey;
++import java.security.InvalidKeyException;
++import java.security.NoSuchProviderException;
++import java.security.SignatureException;
++import java.security.Signature;
++import java.security.NoSuchAlgorithmException;
++import java.security.Provider;
++import java.security.Security;
++import java.security.Principal;
++import java.security.cert.CertificateExpiredException;
++import java.security.cert.CertificateNotYetValidException;
++import java.security.cert.CertificateEncodingException;
++import java.security.cert.CertificateException;
++import java.security.cert.X509Certificate;
+ import java.util.*;
+ 
+ import javax.security.auth.x500.X500Principal;
+-- 
+2.51.1
+

@@ -1,0 +1,232 @@
+From 08d1b575120a1482fb8b3fed8924616192aeb9d0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
+Date: Sun, 30 Nov 2025 23:41:00 +0000
+Subject: [PATCH 9/9] build: remove com.coderplus.maven.plugins
+ copy-rename-maven-plugin and implement equivalent file copying using
+ maven-resources-plugin
+
+build: Replace Takari lifecycle plugin with Maven resources plugin
+
+- core/pom.xml: remove Takari plugin, move NameServiceDescriptor excludes to Maven resources
+- uis/pom.xml: remove Takari plugin, apply SWT/UI excludes via Maven resources during process-resources
+---
+ core/pom.xml | 85 +++++++++++-----------------------------------------
+ pom.xml      | 20 ++-----------
+ uis/pom.xml  | 33 ++++++++++++--------
+ 3 files changed, 41 insertions(+), 97 deletions(-)
+
+diff --git a/core/pom.xml b/core/pom.xml
+index 2847692f5..1ca523741 100644
+--- a/core/pom.xml
++++ b/core/pom.xml
+@@ -45,17 +45,6 @@
+ 				</excludes>
+ 			</resource>
+ 		</resources>
+-		<plugins>
+-			<plugin>
+-				<groupId>io.takari.maven.plugins</groupId>
+-				<artifactId>takari-lifecycle-plugin</artifactId>
+-				<extensions>true</extensions>
+-				<configuration>
+-					<source>${java.version}</source>
+-					<target>${java.version}</target>
+-				</configuration>
+-			</plugin>
+-		</plugins>
+ 	</build>
+ 
+ 	<profiles>
+@@ -93,20 +82,10 @@
+ 						<directory>src/META-INF/services</directory>
+ 						<excludes>
+ 							<exclude>*.NameServiceDescriptor</exclude>
++							<exclude>**/core/util/spi/*</exclude>
+ 						</excludes>
+ 					</resource>
+ 				</resources>
+-				<plugins>
+-					<plugin>
+-						<groupId>io.takari.maven.plugins</groupId>
+-						<artifactId>takari-lifecycle-plugin</artifactId>
+-						<configuration>
+-							<excludes>
+-								<exclude>**/core/util/spi/*</exclude>
+-							</excludes>
+-						</configuration>
+-					</plugin>
+-				</plugins>
+ 			</build>
+ 		</profile>
+ 		<profile>
+@@ -116,54 +95,26 @@
+ 				<jdk>[17,)</jdk>
+ 			</activation>
+ 			<build>
+-				<resources>
+-					<resource>
+-						<targetPath>META-INF/services</targetPath>
+-						<filtering>false</filtering>
+-						<directory>src/META-INF/services</directory>
+-						<excludes>
+-							<exclude>*.NameServiceDescriptor</exclude>
+-						</excludes>
+-					</resource>
+-				</resources>
+ 				<plugins>
+ 					<plugin>
+-						<groupId>io.takari.maven.plugins</groupId>
+-						<artifactId>takari-lifecycle-plugin</artifactId>
+-						<configuration>
+-							<excludes>
+-								<exclude>**/core/util/spi/AENameServiceDescriptor.java</exclude>
+-							</excludes>
+-						</configuration>
+-					</plugin>
+-					<plugin>
+-					 <groupId>com.coderplus.maven.plugins</groupId>
+-				   <artifactId>copy-rename-maven-plugin</artifactId>
++						<artifactId>maven-antrun-plugin</artifactId>
+ 						<executions>
+-						  <execution>
+-							 <id>rename-file</id>
+-						   <phase>generate-sources</phase>
+-						   <goals>
+-							  <goal>copy</goal>
+-							 </goals>
+-							 <configuration>
+-								 <fileSets>
+-									 <fileSet>
+-										 <sourceFile>src/com/biglybt/internat/MessagesBundle_iw_IL.properties</sourceFile>
+-										 <destinationFile>${project.build.directory}/classes/com/biglybt/internat/MessagesBundle_he_IL.properties</destinationFile>
+-									 </fileSet>
+-									 <fileSet>
+-										 <sourceFile>src/com/biglybt/internat/MessagesBundle_in_ID.properties</sourceFile>
+-										 <destinationFile>${project.build.directory}/classes/com/biglybt/internat/MessagesBundle_id_ID.properties</destinationFile>
+-									 </fileSet>
+-									 <!-- No current translations exist for this code
+-									 <fileSet>
+-										 <sourceFile>src/com/biglybt/internat/MessagesBundle_ji_??.properties</sourceFile>
+-										 <destinationFile>${project.build.directory}/classes/com/biglybt/internat/MessagesBundle_yi_??.properties</destinationFile>
+-										 </fileSet>
+-									 -->
+-								 </fileSets>
+-							 </configuration>
++							<execution>
++								<id>clean-and-rename-resources</id>
++								<phase>process-resources</phase>
++								<configuration>
++									<target>
++										<delete file="src/META-INF/services/sun.net.spi.nameservice.NameServiceDescriptor"/>
++										<delete file="src/com/biglybt/core/util/spi/AENameServiceDescriptor.java"/>
++										<copy file="src/com/biglybt/internat/MessagesBundle_iw_IL.properties"
++													tofile="${project.build.outputDirectory}/com/biglybt/internat/MessagesBundle_he_IL.properties"/>
++										<copy file="src/com/biglybt/internat/MessagesBundle_in_ID.properties"
++													tofile="${project.build.outputDirectory}/com/biglybt/internat/MessagesBundle_id_ID.properties"/>
++										</target>
++								</configuration>
++								<goals>
++										<goal>run</goal>
++								</goals>
+ 							</execution>
+ 						</executions>
+ 					</plugin>
+diff --git a/pom.xml b/pom.xml
+index b5744c08a..c76b0ece0 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -146,16 +146,6 @@
+ 						</execution>
+ 					</executions>
+ 				</plugin>
+-				<plugin>
+-					<groupId>io.takari.maven.plugins</groupId>
+-					<artifactId>takari-lifecycle-plugin</artifactId>
+-					<version>2.0.0</version> <!-- 1.13.10	or 2.0.0 -->
+-					<extensions>true</extensions>
+-					<configuration>
+-						<source>${java.version}</source>
+-						<target>${java.version}</target>
+-					</configuration>
+-				</plugin>
+ 				<plugin>
+ 					<groupId>org.apache.maven.plugins</groupId>
+ 					<artifactId>maven-compiler-plugin</artifactId>
+@@ -188,9 +178,9 @@
+ 					</configuration>
+ 				</plugin>
+ 				<plugin>
+-					<groupId>com.coderplus.maven.plugins</groupId>
+-					<artifactId>copy-rename-maven-plugin</artifactId>
+-					<version>1.0.1</version>
++					<groupId>org.apache.maven.plugins</groupId>
++					<artifactId>maven-antrun-plugin</artifactId>
++					<version>3.0.0</version>
+ 				</plugin>
+ 			</plugins>
+ 		</pluginManagement>
+@@ -199,10 +189,6 @@
+ 				<groupId>org.apache.maven.plugins</groupId>
+ 				<artifactId>maven-enforcer-plugin</artifactId>
+ 			</plugin>
+-			<plugin>
+-				<groupId>io.takari.maven.plugins</groupId>
+-				<artifactId>takari-lifecycle-plugin</artifactId>
+-			</plugin>
+ 		</plugins>
+ 	</build>
+ 
+diff --git a/uis/pom.xml b/uis/pom.xml
+index 6e724378e..d86c7c724 100644
+--- a/uis/pom.xml
++++ b/uis/pom.xml
+@@ -111,18 +111,26 @@
+             <build>
+                 <plugins>
+                     <plugin>
+-                        <groupId>io.takari.maven.plugins</groupId>
+-                        <artifactId>takari-lifecycle-plugin</artifactId>
+-                        <configuration>
+-                            <excludes>
+-                                <exclude>**/biglybt/ui/swt/**</exclude>
+-                                <exclude>**/biglybt/ui/swing/**</exclude>
+-                                <exclude>**/biglybt/ui/images/**</exclude>
+-                                <exclude>**/biglybt/ui/icons/**</exclude>
+-                                <exclude>**/biglybt/ui/skin/**</exclude>
+-                                <exclude>**/eclipse/swt/**</exclude>
+-                            </excludes>
+-                        </configuration>
++                        <artifactId>maven-antrun-plugin</artifactId>
++                        <executions>
++                            <execution>
++                                <id>remove-swt-ui-resources</id>
++                                <phase>process-resources</phase>
++                                <configuration>
++                                    <target>
++                                        <delete dir="src/com/biglybt/ui/swt"/>
++                                        <delete dir="src/com/biglybt/ui/swing"/>
++                                        <delete dir="src/com/biglybt/ui/images"/>
++                                        <delete dir="src/com/biglybt/ui/icons"/>
++                                        <delete dir="src/com/biglybt/ui/skin"/>
++                                        <delete dir="src/eclipse/swt"/>
++                                    </target>
++                                </configuration>
++                                <goals>
++                                    <goal>run</goal>
++                                </goals>
++                            </execution>
++                        </executions>
+                     </plugin>
+                 </plugins>
+             </build>
+@@ -133,7 +141,6 @@
+                 <plugins>
+                     <plugin>
+                         <artifactId>maven-antrun-plugin</artifactId>
+-                        <version>1.8</version>
+                         <executions>
+                             <execution>
+                                 <phase>package</phase>
+-- 
+2.51.1
+

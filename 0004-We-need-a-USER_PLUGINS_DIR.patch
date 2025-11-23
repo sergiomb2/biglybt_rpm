@@ -1,5 +1,18 @@
---- ./core/src/com/biglybt/platform/unix/startupScript.orig	2025-01-25 04:01:21.033177477 +0000
-+++ ./core/src/com/biglybt/platform/unix/startupScript	2025-01-25 04:01:44.654109452 +0000
+From 4608442b25a67d55dcf8b1213db24d47531cb3bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
+Date: Sun, 23 Nov 2025 04:14:46 +0000
+Subject: [PATCH 4/9] We need a USER_PLUGINS_DIR
+
+so that BiglyBT can be installed in the PROGRAM_DIR without write permission for the user, and the user can store their
+own plugins in their USER_PLUGINS_DIR.
+---
+ core/src/com/biglybt/platform/unix/startupScript | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/core/src/com/biglybt/platform/unix/startupScript b/core/src/com/biglybt/platform/unix/startupScript
+index a0dbfccd6..c786df80a 100644
+--- a/core/src/com/biglybt/platform/unix/startupScript
++++ b/core/src/com/biglybt/platform/unix/startupScript
 @@ -4,6 +4,7 @@
  AUTOUPDATE_SCRIPT=1 # change to 0 if you don't want your changes overwritten on next SCRIPT_VERSION change
  JAVA_PROGRAM_DIR=""	# use full path to java bin dir, ex. "/usr/java/j2sdk1.4.2/bin/"
@@ -17,7 +30,7 @@
  		"-Dazureus.script=$0" \
  		"-Dawt.useSystemAAFontSettings=gasp" \
  		${JAVA_PROPS} \
-@@ -194,6 +195,11 @@ elif [ ! -f "${PROGRAM_DIR}/BiglyBT.jar"
+@@ -192,6 +193,11 @@ elif [ ! -f "${PROGRAM_DIR}/BiglyBT.jar" ]; then
  	exit 1
  fi
  
@@ -29,7 +42,7 @@
  OLDPATH=$PWD
  
  # Change path here so we can do for loop on program dirs with spaces
-@@ -233,7 +239,7 @@ echo "$MSG_LOADING"
+@@ -231,7 +237,7 @@ echo "$MSG_LOADING"
  $JAVABIN -Xmx256m \
  	-cp "${CLASSPATH}" \
  	"-Djava.library.path=${PROGRAM_DIR}" \
@@ -38,3 +51,6 @@
  	"-Dazureus.script=$0" \
  	${JAVA_PROPS} \
  	${JAVA_ARGS} \
+-- 
+2.51.1
+

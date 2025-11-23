@@ -1,15 +1,34 @@
-From 1638757635b5fb26d9f1100e97c289b059d07ffd Mon Sep 17 00:00:00 2001
+From 34df3fb1249d6f38578c184e13603e0618add255 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
-Date: Sun, 14 Jan 2024 17:26:07 +0000
-Subject: [PATCH 1/4] no-bundled-apache-commons easy part
+Date: Sun, 23 Nov 2025 04:21:10 +0000
+Subject: [PATCH 1/9] New version without bundled Apache Commons v2
 
+Add org.apache.commons:commons-text dependency to pom.xml and core/pom.xml
 ---
+ core/pom.xml                                  |  4 ++++
  .../com/biglybt/core/metasearch/Result.java   |  4 ++--
  .../core/metasearch/impl/web/WebResult.java   | 24 +++++++++----------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ .../SimpleXMLParserDocumentImpl.java          |  8 +++----
+ pom.xml                                       |  5 ++++
+ 5 files changed, 27 insertions(+), 18 deletions(-)
 
+diff --git a/core/pom.xml b/core/pom.xml
+index f5c891b4d..2847692f5 100644
+--- a/core/pom.xml
++++ b/core/pom.xml
+@@ -12,6 +12,10 @@
+ 	</parent>
+ 
+ 	<dependencies>
++		<dependency>
++			<groupId>org.apache.commons</groupId>
++			<artifactId>commons-text</artifactId>
++		</dependency>
+ 		<dependency>
+ 			<groupId>commons-cli</groupId>
+ 			<artifactId>commons-cli</artifactId>
 diff --git a/core/src/com/biglybt/core/metasearch/Result.java b/core/src/com/biglybt/core/metasearch/Result.java
-index 0e38af0fd..83c9e2c1f 100644
+index 1d7219a63..0b9c3734e 100644
 --- a/core/src/com/biglybt/core/metasearch/Result.java
 +++ b/core/src/com/biglybt/core/metasearch/Result.java
 @@ -23,7 +23,7 @@ import java.net.InetAddress;
@@ -21,7 +40,7 @@ index 0e38af0fd..83c9e2c1f 100644
  import org.json.simple.JSONObject;
  
  import com.biglybt.core.metasearch.utils.MomentsAgoDateFormatter;
-@@ -502,6 +502,6 @@ Result
+@@ -512,6 +512,6 @@ Result
  		if ( input == null ){
  			return( null );
  		}
@@ -30,7 +49,7 @@ index 0e38af0fd..83c9e2c1f 100644
  	}
  }
 diff --git a/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java b/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java
-index e9fbf29d5..102fb9a6a 100644
+index 67a80bca7..83114c975 100644
 --- a/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java
 +++ b/core/src/com/biglybt/core/metasearch/impl/web/WebResult.java
 @@ -21,7 +21,7 @@ package com.biglybt.core.metasearch.impl.web;
@@ -42,7 +61,7 @@ index e9fbf29d5..102fb9a6a 100644
  
  import com.biglybt.core.metasearch.Engine;
  import com.biglybt.core.metasearch.Result;
-@@ -90,14 +90,14 @@ public class WebResult extends Result {
+@@ -93,14 +93,14 @@ public class WebResult extends Result {
  	public void setNameFromHTML(String name) {
  		if(name != null) {
  			name = removeHTMLTags(name);
@@ -59,7 +78,7 @@ index e9fbf29d5..102fb9a6a 100644
  			comments = comments.replaceAll(",", "");
  			comments = comments.replaceAll(" ", "");
  			try{
-@@ -112,7 +112,7 @@ public class WebResult extends Result {
+@@ -122,7 +122,7 @@ public class WebResult extends Result {
  		if(category != null) {
  			addTagFromHTML(category);	// hack, we currently just pick up cats
  			category = removeHTMLTags(category);
@@ -68,7 +87,7 @@ index e9fbf29d5..102fb9a6a 100644
  			/*int separator = this.category.indexOf(">");
  
  			if(separator != -1) {
-@@ -134,7 +134,7 @@ public class WebResult extends Result {
+@@ -144,7 +144,7 @@ public class WebResult extends Result {
  		}
  		
  		tag = removeHTMLTags( tag );
@@ -77,7 +96,7 @@ index e9fbf29d5..102fb9a6a 100644
  		
  		if ( !tag.isEmpty()){
  			
-@@ -163,7 +163,7 @@ public class WebResult extends Result {
+@@ -173,7 +173,7 @@ public class WebResult extends Result {
  	public void setNbPeersFromHTML(String nbPeers) {
  		if(nbPeers != null) {
  			nbPeers = removeHTMLTags(nbPeers);
@@ -86,7 +105,7 @@ index e9fbf29d5..102fb9a6a 100644
  			nbPeersS = nbPeersS.replaceAll(",", "");
  			nbPeersS = nbPeersS.replaceAll(" ", "");
  			try {
-@@ -178,7 +178,7 @@ public class WebResult extends Result {
+@@ -188,7 +188,7 @@ public class WebResult extends Result {
  	public void setNbSeedsFromHTML(String nbSeeds) {
  		if(nbSeeds != null) {
  			nbSeeds = removeHTMLTags(nbSeeds);
@@ -95,7 +114,7 @@ index e9fbf29d5..102fb9a6a 100644
  			nbSeedsS = nbSeedsS.replaceAll(",", "");
  			nbSeedsS = nbSeedsS.replaceAll(" ", "");
  			try {
-@@ -193,7 +193,7 @@ public class WebResult extends Result {
+@@ -203,7 +203,7 @@ public class WebResult extends Result {
  	public void setNbSuperSeedsFromHTML(String nbSuperSeeds) {
  		if(nbSuperSeeds != null) {
  			nbSuperSeeds = removeHTMLTags(nbSuperSeeds);
@@ -104,7 +123,7 @@ index e9fbf29d5..102fb9a6a 100644
  			nbSuperSeedsS = nbSuperSeedsS.replaceAll(",", "");
  			nbSuperSeedsS = nbSuperSeedsS.replaceAll(" ", "");
  			try {
-@@ -276,7 +276,7 @@ public class WebResult extends Result {
+@@ -289,7 +289,7 @@ public class WebResult extends Result {
  	public void setPublishedDateFromHTML(String publishedDate) {
  		if(publishedDate != null && publishedDate.length() > 0) {
  			publishedDate = removeHTMLTags(publishedDate);
@@ -113,7 +132,7 @@ index e9fbf29d5..102fb9a6a 100644
  			this.publishedDate = dateParser.parseDate(publishedDateS);
  		}
  	}
-@@ -298,7 +298,7 @@ public class WebResult extends Result {
+@@ -305,7 +305,7 @@ public class WebResult extends Result {
  	public void setSizeFromHTML(String size, long minAcceptable) {
  		if(size != null) {
  			size = removeHTMLTags(size);
@@ -122,7 +141,7 @@ index e9fbf29d5..102fb9a6a 100644
  			sizeS = sizeS.replaceAll("<[^>]+>", " ");
  			//Add a space between the digits and unit if there is none
  			sizeS = sizeS.replaceFirst("(\\d)([a-zA-Z])", "$1 $2");
-@@ -322,7 +322,7 @@ public class WebResult extends Result {
+@@ -338,7 +338,7 @@ public class WebResult extends Result {
  	public void setVotesFromHTML(String votes_str) {
  		if(votes_str != null) {
  			votes_str = removeHTMLTags(votes_str);
@@ -131,7 +150,7 @@ index e9fbf29d5..102fb9a6a 100644
  			votes_str = votes_str.replaceAll(",", "");
  			votes_str = votes_str.replaceAll(" ", "");
  			try {
-@@ -336,7 +336,7 @@ public class WebResult extends Result {
+@@ -352,7 +352,7 @@ public class WebResult extends Result {
  	public void setVotesDownFromHTML(String votes_str) {
  		if(votes_str != null) {
  			votes_str = removeHTMLTags(votes_str);
@@ -140,10 +159,10 @@ index e9fbf29d5..102fb9a6a 100644
  			votes_str = votes_str.replaceAll(",", "");
  			votes_str = votes_str.replaceAll(" ", "");
  			try {
--- 
-2.43.0
---- a/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java.orig	2025-03-01 21:00:26.334149525 +0000
-+++ b/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java	2025-03-01 21:09:14.961317365 +0000
+diff --git a/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java b/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java
+index 86e6744ed..48eede362 100644
+--- a/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java
++++ b/core/src/com/biglybt/pifimpl/local/utils/xml/simpleparser/SimpleXMLParserDocumentImpl.java
 @@ -31,7 +31,7 @@ import java.util.Vector;
  import javax.xml.parsers.DocumentBuilder;
  import javax.xml.parsers.DocumentBuilderFactory;
@@ -168,3 +187,22 @@ index e9fbf29d5..102fb9a6a 100644
  
  		     					}else{
  
+diff --git a/pom.xml b/pom.xml
+index f77e797be..10f282da1 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -62,6 +62,11 @@
+ 				<artifactId>commons-cli</artifactId>
+ 				<version>1.4</version>
+ 			</dependency>
++			<dependency>
++				<groupId>org.apache.commons</groupId>
++				<artifactId>commons-text</artifactId>
++				<version>1.10.0</version>
++			</dependency>
+ 		</dependencies>
+ 	</dependencyManagement>
+ 
+-- 
+2.51.1
+

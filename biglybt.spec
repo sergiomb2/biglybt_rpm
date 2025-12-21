@@ -13,7 +13,6 @@ License:        GPL-2.0-or-later
 URL:            https://github.com/BiglySoftware/BiglyBT
 Source0:        %{url}/archive/v%{version}/BiglyBT-%{version}.tar.gz
 Source2:        biglybt.desktop
-Source3:        biglybt.applications
 Source4:        biglybt.1
 Patch1:         0004-We-need-a-USER_PLUGINS_DIR.patch
 Patch4:         06-half-disable-updater.patch
@@ -26,6 +25,7 @@ Patch15:        0006-Fix-Java-25-compilation.patch
 Patch16:        0007-Fix-interface-conflicts-for-Java-25.patch
 Patch17:        0008-Add-source-and-target-configuration-to-maven-compile.patch
 Patch18:        0009-build-remove-com.coderplus.maven.plugins-copy-rename.patch
+Patch19:        2426.patch
 
 
 BuildArch:      noarch
@@ -123,6 +123,7 @@ rm core/src.test/com/biglybt/core/WikiTest.java
 %mvn_build -i
 #mvn_build -i -f
 #mvn_build -i -f -j
+#mvn_build -i -b -E
 
 # Move Licenses files from docs, we will install them on licenses directory
 mv target/xmvn-apidocs/legal/ .
@@ -149,9 +150,6 @@ install -m 644 assets/linux/biglybt.png %{buildroot}%{_datadir}/pixmaps/biglybt.
 mkdir -p %{buildroot}%{_datadir}/applications
 desktop-file-install --dir %{buildroot}%{_datadir}/applications %{SOURCE2}
 
-mkdir -p %{buildroot}%{_datadir}/application-registry
-install -m644 %{SOURCE3} %{buildroot}%{_datadir}/application-registry
-
 # install manual page
 mkdir -p %{buildroot}%{_mandir}/man1
 install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
@@ -163,7 +161,6 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 %{_bindir}/biglybt
 %{_javadir}/%{name}
 %{_datadir}/applications/biglybt.desktop
-%{_datadir}/application-registry/*
 %{_datadir}/pixmaps/biglybt.png
 %{_mandir}/man1/biglybt.1*
 

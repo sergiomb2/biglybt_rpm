@@ -1,23 +1,23 @@
-From 4608442b25a67d55dcf8b1213db24d47531cb3bc Mon Sep 17 00:00:00 2001
+From 861d1d3be7702af085df125cecc0bcc58296e8db Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
-Date: Sun, 23 Nov 2025 04:14:46 +0000
-Subject: [PATCH 4/9] We need a USER_PLUGINS_DIR
+Date: Tue, 16 Dec 2025 16:41:04 +0000
+Subject: [PATCH 1/2] We need a USER_DIR to install BiglyBT globally on Linux
 
 so that BiglyBT can be installed in the PROGRAM_DIR without write permission for the user, and the user can store their
-own plugins in their USER_PLUGINS_DIR.
+own plugins in their USER_DIR.
 ---
  core/src/com/biglybt/platform/unix/startupScript | 10 ++++++++--
  1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/core/src/com/biglybt/platform/unix/startupScript b/core/src/com/biglybt/platform/unix/startupScript
-index a0dbfccd6..c786df80a 100644
+index ae2ad059a..90f3a0356 100644
 --- a/core/src/com/biglybt/platform/unix/startupScript
 +++ b/core/src/com/biglybt/platform/unix/startupScript
 @@ -4,6 +4,7 @@
  AUTOUPDATE_SCRIPT=1 # change to 0 if you don't want your changes overwritten on next SCRIPT_VERSION change
  JAVA_PROGRAM_DIR=""	# use full path to java bin dir, ex. "/usr/java/j2sdk1.4.2/bin/"
  #PROGRAM_DIR="/home/username/apps/biglybt"	# use full path to BiglyBT bin dir
-+#USER_PLUGINS_DIR="$HOME/.biglybt"
++#USER_DIR="$HOME/.biglybt"
  JAVA_PROPS=""
  
  #######################################
@@ -26,31 +26,31 @@ index a0dbfccd6..c786df80a 100644
  		-cp "${CLASSPATH}" \
  		"-Djava.library.path=${PROGRAM_DIR}" \
 -		"-Dazureus.install.path=${PROGRAM_DIR}" \
-+		"-Dazureus.install.path=${USER_PLUGINS_DIR}" \
++		"-Dazureus.install.path=${USER_DIR}" \
  		"-Dazureus.script=$0" \
  		"-Dawt.useSystemAAFontSettings=gasp" \
  		${JAVA_PROPS} \
-@@ -192,6 +193,11 @@ elif [ ! -f "${PROGRAM_DIR}/BiglyBT.jar" ]; then
+@@ -196,6 +197,11 @@ elif [ ! -f "${PROGRAM_DIR}/BiglyBT.jar" ]; then
  	exit 1
  fi
  
-+# by default USER_PLUGINS_DIR is equal to PROGRAM DIR
-+if [ -z "$USER_PLUGINS_DIR" ]; then
-+    USER_PLUGINS_DIR=${PROGRAM_DIR}
++# by default USER_DIR is equal to PROGRAM DIR
++if [ -z "$USER_DIR" ]; then
++    USER_DIR=${PROGRAM_DIR}
 +fi
 +
  OLDPATH=$PWD
  
  # Change path here so we can do for loop on program dirs with spaces
-@@ -231,7 +237,7 @@ echo "$MSG_LOADING"
+@@ -235,7 +241,7 @@ echo "$MSG_LOADING"
  $JAVABIN -Xmx256m \
  	-cp "${CLASSPATH}" \
  	"-Djava.library.path=${PROGRAM_DIR}" \
 -	"-Dazureus.install.path=${PROGRAM_DIR}" \
-+	"-Dazureus.install.path=${USER_PLUGINS_DIR}" \
++	"-Dazureus.install.path=${USER_DIR}" \
  	"-Dazureus.script=$0" \
  	${JAVA_PROPS} \
  	${JAVA_ARGS} \
 -- 
-2.51.1
+2.52.0
 

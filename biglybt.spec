@@ -5,7 +5,7 @@
 %endif
 
 Name:           biglybt
-Version:        3.9.0.0
+Version:        4.0.0.0
 Release:        1%{?dist}
 Summary:        A feature filled, open source, ad-free, BitTorrent client
 
@@ -14,17 +14,11 @@ URL:            https://github.com/BiglySoftware/BiglyBT
 Source0:        %{url}/archive/v%{version}/BiglyBT-%{version}.tar.gz
 Source2:        biglybt.desktop
 Source4:        biglybt.1
-Patch1:         0004-We-need-a-USER_PLUGINS_DIR.patch
+Patch1:         0001-We-need-a-USER_DIR-to-install-BiglyBT-globally-on-Li.patch
+Patch2:         0002-New-version-without-bundled-Apache-Commons-v2.patch
 Patch4:         06-half-disable-updater.patch
 #Patch7:         07-unbundle-bouncycastle.patch
 #Patch8:         biglybt-no-bundle-json.patch
-Patch9:         0001-New-version-without-bundled-Apache-Commons-v2.patch
-Patch13:        java21.patch
-Patch14:        0003-Always-call-look_for_java-to-set-JAVA_VERSION.patch
-Patch15:        0006-Fix-Java-25-compilation.patch
-Patch16:        0007-Fix-interface-conflicts-for-Java-25.patch
-Patch17:        0008-Add-source-and-target-configuration-to-maven-compile.patch
-Patch18:        0009-build-remove-com.coderplus.maven.plugins-copy-rename.patch
 Patch19:        2426.patch
 
 
@@ -86,7 +80,6 @@ rm -rv core/src/org/apache
 #rm -rv core/src/org/gudy/bouncycastle/
 #%%pom_add_dep org.bouncycastle:bcprov-jdk18on core/pom.xml
 
-
 # add dep json-simple getting values from /usr/share/maven-metadata/json_simple.xml
 #rm -rv core/src/org/json
 #%%pom_add_dep com.googlecode.json-simple:json-simple core/pom.xml
@@ -109,16 +102,15 @@ rm -rv core/src/org/apache
 %pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.apache.commons:commons-lang3</exclude>" uis/pom.xml
 %pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.apache.commons:commons-text</exclude>" uis/pom.xml
 #%%pom_xpath_inject "pom:plugin[pom:artifactId='maven-shade-plugin']//pom:excludes" "<exclude>org.bouncycastle:bcprov-jdk18on</exclude>" uis/pom.xml
-%pom_xpath_remove -r pom:manifestEntries/pom:Class-Path
-
-%pom_xpath_set pom:packaging jar core/pom.xml
-%pom_xpath_set pom:packaging jar uis/pom.xml
 
 #JAR files must not include class-path entry inside META-INF/MANIFEST.MF
+%pom_xpath_remove -r pom:manifestEntries/pom:Class-Path
+%pom_xpath_remove -r pom:addClasspath
 sed -i '/class-path/I d' core/src/META-INF/MANIFEST.MF
 
 
 %build
+# WikiTest fails without internet
 rm core/src.test/com/biglybt/core/WikiTest.java
 %mvn_build -i
 #mvn_build -i -f
@@ -136,8 +128,7 @@ install -p -D -m 0755 core/src/com/biglybt/platform/unix/startupScript %{buildro
 sed -i 's|AUTOUPDATE_SCRIPT=1|AUTOUPDATE_SCRIPT=0|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|JAVA_PROGRAM_DIR=""|JAVA_PROGRAM_DIR="/usr/lib/jvm/jre-%{java_ver}/bin/"|' %{buildroot}%{_bindir}/biglybt
 sed -i 's|#PROGRAM_DIR="/home/username/apps/biglybt"|PROGRAM_DIR="/usr/share/java/biglybt"|' %{buildroot}%{_bindir}/biglybt
-sed -i 's|#USER_PLUGINS_DIR|USER_PLUGINS_DIR|' %{buildroot}%{_bindir}/biglybt
-#sed -i 's|JAVA_PROPS=""|JAVA_PROPS="--add-opens=java.base/java.net=ALL-UNNAMED"|' %{buildroot}%{_bindir}/biglybt
+sed -i 's|#USER_DIR|USER_DIR|' %{buildroot}%{_bindir}/biglybt
 #after unbundle all =${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt json_simple bcprov apache-commons-cli apache-commons-lang3 apache-commons-text)|'
 sed -i 's|moveInSWT$|CLASSPATH=${CLASSPATH:+${CLASSPATH}:}$(build-classpath swt apache-commons-cli apache-commons-text)|' %{buildroot}%{_bindir}/biglybt
 
@@ -169,6 +160,9 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Sun Dec 21 2025 Sérgio Basto <sergio@serjux.com> - 4.0.0.0-1
+- Update biglybt to 4.0.0.0
+
 * Sat Nov 22 2025 Sérgio Basto <sergio@serjux.com> - 3.9.0.0-1
 - Update biglybt to 3.9.0.0
 

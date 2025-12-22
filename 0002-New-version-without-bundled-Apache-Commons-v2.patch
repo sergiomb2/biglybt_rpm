@@ -1,7 +1,7 @@
-From 34df3fb1249d6f38578c184e13603e0618add255 Mon Sep 17 00:00:00 2001
+From 6514708ee7cea8632d7f0232318e65c3a7eb5e14 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
 Date: Sun, 23 Nov 2025 04:21:10 +0000
-Subject: [PATCH 1/9] New version without bundled Apache Commons v2
+Subject: [PATCH 2/2] New version without bundled Apache Commons v2
 
 Add org.apache.commons:commons-text dependency to pom.xml and core/pom.xml
 ---
@@ -13,7 +13,7 @@ Add org.apache.commons:commons-text dependency to pom.xml and core/pom.xml
  5 files changed, 27 insertions(+), 18 deletions(-)
 
 diff --git a/core/pom.xml b/core/pom.xml
-index f5c891b4d..2847692f5 100644
+index 5ddf6656e..5b1bc65eb 100644
 --- a/core/pom.xml
 +++ b/core/pom.xml
 @@ -12,6 +12,10 @@
@@ -188,7 +188,7 @@ index 86e6744ed..48eede362 100644
  		     					}else{
  
 diff --git a/pom.xml b/pom.xml
-index f77e797be..10f282da1 100644
+index 4659ebe3f..c76b0ece0 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -62,6 +62,11 @@
@@ -204,5 +204,5 @@ index f77e797be..10f282da1 100644
  	</dependencyManagement>
  
 -- 
-2.51.1
+2.52.0
 

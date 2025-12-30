@@ -6,7 +6,7 @@
 
 Name:           biglybt
 Version:        4.0.0.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A feature filled, open source, ad-free, BitTorrent client
 
 License:        GPL-2.0-or-later
@@ -85,8 +85,6 @@ rm -rv core/src/org/apache
 #%%pom_add_dep com.googlecode.json-simple:json-simple core/pom.xml
 
 # set the correct version
-%pom_xpath_set pom:project/pom:properties/pom:java.version %{java_ver}
-%pom_xpath_set -r pom:project/pom:properties/pom:java.version %{java_ver}
 %pom_xpath_set pom:project/pom:version %{version}
 %pom_xpath_set -r pom:parent/pom:version %{version}
 
@@ -112,7 +110,7 @@ sed -i '/class-path/I d' core/src/META-INF/MANIFEST.MF
 %build
 # WikiTest fails without internet
 rm core/src.test/com/biglybt/core/WikiTest.java
-%mvn_build -i
+%mvn_build -i -- -Djava.version=%{java_ver}
 #mvn_build -i -f
 #mvn_build -i -f -j
 #mvn_build -i -b -E
@@ -160,6 +158,9 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Tue Dec 30 2025 Sérgio Basto <sergio@serjux.com> - 4.0.0.0-3
+- Use the java.version property to build the package
+
 * Mon Dec 29 2025 Sérgio Basto <sergio@serjux.com> - 4.0.0.0-2
 - Update biglybt.desktop
 

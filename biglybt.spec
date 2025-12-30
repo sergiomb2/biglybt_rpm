@@ -6,7 +6,7 @@
 
 Name:           biglybt
 Version:        4.0.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A feature filled, open source, ad-free, BitTorrent client
 
 License:        GPL-2.0-or-later
@@ -160,6 +160,9 @@ install -p -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Mon Dec 29 2025 Sérgio Basto <sergio@serjux.com> - 4.0.0.0-2
+- Update biglybt.desktop
+
 * Sun Dec 21 2025 Sérgio Basto <sergio@serjux.com> - 4.0.0.0-1
 - Update biglybt to 4.0.0.0
 
